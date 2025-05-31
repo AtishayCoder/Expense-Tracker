@@ -19,4 +19,9 @@ class ExpenseStorage {
     final List<dynamic> jsonList = jsonDecode(data);
     return jsonList.map((e) => Expense.fromJson(e)).toList();
   }
+
+  static Future<void> clearExpenses() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_key);
+  }
 }

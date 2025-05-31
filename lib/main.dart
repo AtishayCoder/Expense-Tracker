@@ -77,16 +77,29 @@ class _RootState extends State<Root> {
               });
             },
           ),
-          floatingActionButton: FloatingActionButton(
-            onPressed: () {
-              Get.bottomSheet(const NewExpense());
+          floatingActionButton: Builder(
+            builder: (context) {
+              return FloatingActionButton(
+                onPressed: () {
+                  Get.bottomSheet(
+                    const NewExpense(),
+                    isScrollControlled: true,
+                    backgroundColor:
+                        Theme.of(context).brightness == Brightness.dark
+                        ? Colors.black
+                        : Colors.white,
+                    ignoreSafeArea: false,
+                  );
+                },
+                child: const Icon(Icons.add),
+              );
             },
-            child: const Icon(Icons.add),
           ),
         ),
       ),
       themeMode: ThemeMode.system,
-      darkTheme: ThemeData(brightness: Brightness.dark),
+      darkTheme: ThemeData.dark(),
+      theme: ThemeData.light(),
     );
   }
 }

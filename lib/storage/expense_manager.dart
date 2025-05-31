@@ -3,7 +3,6 @@ import "package:expense_tracker/storage/expense_store.dart";
 
 class ExpenseManager {
   List<Expense> _expenses = [];
-
   List<Expense> get expenses => _expenses;
 
   Future<void> loadExpenses() async {
@@ -22,5 +21,10 @@ class ExpenseManager {
 
   double getTotal() {
     return _expenses.fold(0, (sum, e) => sum + e.amount);
+  }
+
+  Future<void> clearAllExpenses() async {
+    _expenses.clear();
+    await ExpenseStorage.clearExpenses();
   }
 }
