@@ -32,28 +32,25 @@ class _RootState extends State<Root> {
             title: const Text("Expense Tracker"),
             backgroundColor: Colors.lightBlue,
             actions: [
-              IconButton(
-                onPressed: () {
-                  Get.bottomSheet(const Settings());
+              Builder(
+                builder: (context) {
+                  return IconButton(
+                    onPressed: () {
+                      Get.bottomSheet(
+                        const Settings(),
+                        backgroundColor:
+                            Theme.of(context).brightness == Brightness.dark
+                            ? Colors.black
+                            : Colors.white,
+                      );
+                    },
+                    icon: const Icon(Icons.settings),
+                  );
                 },
-                icon: const Icon(Icons.settings),
               ),
             ],
           ),
-          body: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 300),
-            transitionBuilder: (child, animation) {
-              final offsetAnimation = Tween<Offset>(
-                begin: Offset(navIndex > previousIndex ? 1 : -1, 0),
-                end: Offset.zero,
-              ).animate(animation);
-              return SlideTransition(position: offsetAnimation, child: child);
-            },
-            child: Container(
-              key: ValueKey<int>(navIndex),
-              child: screens[navIndex],
-            ),
-          ),
+          body: screens[navIndex],
           bottomNavigationBar: BottomNavigationBar(
             items: const [
               BottomNavigationBarItem(

@@ -34,27 +34,36 @@ class _TransactionsState extends State<Transactions> {
     setState(() {
       processing = true;
     });
+
     rows = [];
     await expenseManagerInstance.loadExpenses();
     List<Expense> expenses = expenseManagerInstance.expenses;
-    expenses.sort((a, b) => b.date.compareTo(a.date));
-    for (var expense in expenses) {
-      rows.add(
-        DataRow(
-          cells: [
-            DataCell(Text(expense.title)),
-            DataCell(Text(expense.amount.toString())),
-            DataCell(
-              Text(
-                "${expense.date.day}/${expense.date.month}/${expense.date.year}",
-              ),
-            ),
-            DataCell(Text(expense.desc)),
-          ],
-        ),
-      );
-    }
 
+    if (expenses.isEmpty) {
+    } else {
+      expenses.sort((a, b) => b.date.compareTo(a.date));
+      for (var expense in expenses) {
+        rows.add(
+          DataRow(
+            cells: [
+              DataCell(Text(expense.title)),
+              DataCell(Text(expense.amount.toString())),
+              DataCell(
+                Text(
+                  "${expense.date.day}/${expense.date.month}/${expense.date.year}",
+                ),
+              ),
+              DataCell(Text(expense.desc)),
+              DataCell(
+                Text(
+                  expense.category == ExpenseCategory.need ? "Need" : "Want",
+                ),
+              ),
+            ],
+          ),
+        );
+      }
+    }
     setState(() {
       processing = false;
     });
@@ -64,31 +73,32 @@ class _TransactionsState extends State<Transactions> {
   Widget build(BuildContext context) {
     return ModalProgressHUD(
       inAsyncCall: processing,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Padding(
-          padding: EdgeInsets.all(20),
-          child: processing
-              ? Container()
-              : (rows != [])
-              ? DataTable(
+      child: Padding(
+        padding: EdgeInsets.all(20),
+        child: processing
+            ? Container()
+            : (rows.isEmpty)
+            ? Center(
+                child: Text(
+                  "No expenses added yet. Use the add button to add a transaction!",
+                  style: TextStyle(fontSize: 20.0),
+                ),
+              )
+            : SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: DataTable(
                   columns: <DataColumn>[
                     DataColumn(label: Text("Title")),
                     DataColumn(label: Text("Amount")),
                     DataColumn(label: Text("Date")),
                     DataColumn(label: Text("Description")),
+                    DataColumn(label: Text("Category")),
                   ],
                   rows: rows,
                   sortAscending: true,
                   sortColumnIndex: 2,
-                )
-              : Center(
-                  child: Text(
-                    "No expenses added yet. Use the add button to add a transaction!",
-                    style: TextStyle(fontSize: 35.0),
-                  ),
                 ),
-        ),
+              ),
       ),
     );
   }

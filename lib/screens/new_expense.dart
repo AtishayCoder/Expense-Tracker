@@ -19,6 +19,7 @@ class _NewExpenseState extends State<NewExpense> {
   DateTime? date;
   TextEditingController dateC = TextEditingController();
   String desc = "";
+  ExpenseCategory? cat;
 
   @override
   Widget build(BuildContext context) {
@@ -91,11 +92,29 @@ class _NewExpenseState extends State<NewExpense> {
             },
           ),
           SizedBox(height: 30),
+          // Category
+          DropdownMenu(
+            dropdownMenuEntries: [
+              DropdownMenuEntry(value: ExpenseCategory.need, label: "Need"),
+              DropdownMenuEntry(value: ExpenseCategory.want, label: "Want"),
+            ],
+            onSelected: (v) {
+              cat = v;
+            },
+            width: double.infinity,
+            initialSelection: ExpenseCategory.need,
+            label: Text("Category"),
+          ),
+          SizedBox(height: 30),
           // Submit
           MaterialButton(
             onPressed: () async {
               // ignore: unnecessary_null_comparison
-              if (title == "" || amount == 0.0 || date == null || desc == "") {
+              if (title == "" ||
+                  amount == 0.0 ||
+                  date == null ||
+                  desc == "" ||
+                  cat == null) {
                 Get.snackbar(
                   "Error",
                   "Please fill all the fields",
@@ -109,6 +128,7 @@ class _NewExpenseState extends State<NewExpense> {
                       amount: amount,
                       date: date!,
                       desc: desc,
+                      category: cat!,
                     ),
                   );
                   Get.back();

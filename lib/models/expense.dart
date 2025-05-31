@@ -3,12 +3,14 @@ class Expense {
   final double amount;
   final DateTime date;
   final String desc;
+  final ExpenseCategory category;
 
   Expense({
     required this.title,
     required this.amount,
     required this.date,
     required this.desc,
+    required this.category,
   });
 
   Map<String, dynamic> toJson() => {
@@ -16,6 +18,7 @@ class Expense {
     "amount": amount,
     "date": date.toIso8601String(),
     "desc": desc,
+    "category": category == ExpenseCategory.need ? "need" : "want",
   };
 
   factory Expense.fromJson(Map<String, dynamic> json) => Expense(
@@ -23,5 +26,10 @@ class Expense {
     amount: json["amount"],
     date: DateTime.parse(json["date"]),
     desc: json["desc"],
+    category: json["category"] == "need"
+        ? ExpenseCategory.need
+        : ExpenseCategory.want,
   );
 }
+
+enum ExpenseCategory { need, want }
