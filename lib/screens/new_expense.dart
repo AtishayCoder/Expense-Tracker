@@ -1,6 +1,8 @@
 import 'package:expense_tracker/models/decimal_text_input_formatter.dart';
 import 'package:expense_tracker/models/expense.dart';
 import 'package:expense_tracker/storage/expense_manager.dart';
+import 'package:expense_tracker/utils/event_bus_singleton.dart';
+import 'package:expense_tracker/utils/events.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -101,7 +103,7 @@ class _NewExpenseState extends State<NewExpense> {
                 );
               } else {
                 try {
-                  await ExpenseManager().addExpense(
+                  await expenseManagerInstance.addExpense(
                     Expense(
                       title: title,
                       amount: amount,
@@ -115,7 +117,8 @@ class _NewExpenseState extends State<NewExpense> {
                     "Expense has been added successfully!",
                     duration: Duration(seconds: 4),
                   );
-                  print(ExpenseManager().expenses);
+                  print(expenseManagerInstance.expenses);
+                  appEventBus.fire(ExpensesUpdatedEvent());
                 } catch (e) {
                   Get.snackbar(
                     "Error",

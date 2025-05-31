@@ -28,3 +28,5 @@ class ExpenseManager {
     await ExpenseStorage.clearExpenses();
   }
 }
+
+final ExpenseManager expenseManagerInstance = ExpenseManager();
