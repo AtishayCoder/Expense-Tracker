@@ -5,6 +5,7 @@ import 'package:expense_tracker/screens/settings.dart';
 import 'package:expense_tracker/screens/transactions.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(const Root());
@@ -22,6 +23,14 @@ class _RootState extends State<Root> {
   int previousIndex = 1;
 
   final List<Widget> screens = const [Charts(), Dashboard(), Transactions()];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await (await SharedPreferences.getInstance()).setInt("Income", 100000);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

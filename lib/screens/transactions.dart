@@ -5,6 +5,7 @@ import 'package:expense_tracker/storage/expense_manager.dart';
 import 'package:expense_tracker/utils/event_bus_singleton.dart';
 import 'package:expense_tracker/utils/events.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:modal_progress_hud_alt/modal_progress_hud_alt.dart';
 
 class Transactions extends StatefulWidget {
@@ -47,7 +48,9 @@ class _TransactionsState extends State<Transactions> {
           DataRow(
             cells: [
               DataCell(Text(expense.title)),
-              DataCell(Text(expense.amount.toString())),
+              DataCell(
+                Text(NumberFormat.decimalPattern().format(expense.amount)),
+              ),
               DataCell(
                 Text(
                   "${expense.date.day}/${expense.date.month}/${expense.date.year}",

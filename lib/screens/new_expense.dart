@@ -102,7 +102,6 @@ class _NewExpenseState extends State<NewExpense> {
               cat = v;
             },
             width: double.infinity,
-            initialSelection: ExpenseCategory.need,
             label: Text("Category"),
           ),
           SizedBox(height: 30),
