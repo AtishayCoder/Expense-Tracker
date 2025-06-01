@@ -20,11 +20,12 @@ class _NewExpenseState extends State<NewExpense> {
   TextEditingController dateC = TextEditingController();
   String desc = "";
   ExpenseCategory? cat;
+  Purpose? purpose;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 50, horizontal: 20),
+      padding: EdgeInsets.symmetric(vertical: 30, horizontal: 20),
       child: Column(
         children: [
           // Title
@@ -40,7 +41,7 @@ class _NewExpenseState extends State<NewExpense> {
               title = v;
             },
           ),
-          SizedBox(height: 15),
+          SizedBox(height: 10),
           // Amount
           TextField(
             decoration: InputDecoration(
@@ -55,7 +56,7 @@ class _NewExpenseState extends State<NewExpense> {
             inputFormatters: [DecimalTextInputFormatter(decimalRange: 2)],
             keyboardType: TextInputType.numberWithOptions(decimal: true),
           ),
-          SizedBox(height: 15),
+          SizedBox(height: 10),
           // Date
           TextField(
             decoration: InputDecoration(
@@ -78,7 +79,7 @@ class _NewExpenseState extends State<NewExpense> {
             },
             controller: dateC,
           ),
-          SizedBox(height: 15),
+          SizedBox(height: 10),
           // Description
           TextField(
             decoration: InputDecoration(
@@ -91,7 +92,7 @@ class _NewExpenseState extends State<NewExpense> {
               desc = v;
             },
           ),
-          SizedBox(height: 30),
+          SizedBox(height: 10),
           // Category
           DropdownMenu(
             dropdownMenuEntries: [
@@ -104,7 +105,23 @@ class _NewExpenseState extends State<NewExpense> {
             width: double.infinity,
             label: Text("Category"),
           ),
-          SizedBox(height: 30),
+          SizedBox(height: 10),
+          // Purpose
+          DropdownMenu(
+            dropdownMenuEntries: [
+              DropdownMenuEntry(value: Purpose.transport, label: "Transport"),
+              DropdownMenuEntry(value: Purpose.health, label: "Wellness"),
+              DropdownMenuEntry(value: Purpose.education, label: "Education"),
+              DropdownMenuEntry(value: Purpose.home, label: "Home"),
+              DropdownMenuEntry(value: Purpose.others, label: "Other"),
+            ],
+            onSelected: (v) {
+              purpose = v;
+            },
+            width: double.infinity,
+            label: Text("Purpose"),
+          ),
+          SizedBox(height: 20),
           // Submit
           MaterialButton(
             onPressed: () async {
@@ -113,7 +130,8 @@ class _NewExpenseState extends State<NewExpense> {
                   amount == 0.0 ||
                   date == null ||
                   desc == "" ||
-                  cat == null) {
+                  cat == null ||
+                  purpose == null) {
                 Get.snackbar(
                   "Error",
                   "Please fill all the fields",
@@ -128,6 +146,7 @@ class _NewExpenseState extends State<NewExpense> {
                       date: date!,
                       desc: desc,
                       category: cat!,
+                      purpose: purpose!,
                     ),
                   );
                   Get.back();
