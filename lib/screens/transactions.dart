@@ -84,6 +84,7 @@ class _TransactionsState extends State<Transactions> {
             ? Center(
                 child: Text(
                   "No expenses added yet. Use the add button to add a transaction!",
+                  textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 20.0),
                 ),
               )
