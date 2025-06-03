@@ -2,6 +2,7 @@ import 'package:expense_tracker/models/expense.dart';
 import 'package:expense_tracker/storage/expense_manager.dart';
 import 'package:expense_tracker/utils/event_bus_singleton.dart';
 import 'package:expense_tracker/utils/events.dart';
+import 'package:expense_tracker/utils/theme.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -78,7 +79,7 @@ class _DashboardState extends State<Dashboard> {
                     // Basics
                     Card(
                       elevation: 9,
-                      color: Theme.of(context).brightness == Brightness.dark
+                      color: isDarkTheme(context)
                           ? Colors.grey[850]
                           : Colors.grey[50],
                       child: Padding(
@@ -148,8 +149,7 @@ class _DashboardState extends State<Dashboard> {
                         Expanded(
                           child: Card(
                             elevation: 9,
-                            color:
-                                Theme.of(context).brightness == Brightness.dark
+                            color: isDarkTheme(context)
                                 ? Colors.grey[850]
                                 : Colors.grey[50],
                             child: Padding(
@@ -175,8 +175,7 @@ class _DashboardState extends State<Dashboard> {
                         Expanded(
                           child: Card(
                             elevation: 9,
-                            color:
-                                Theme.of(context).brightness == Brightness.dark
+                            color: isDarkTheme(context)
                                 ? Colors.grey[850]
                                 : Colors.grey[50],
                             child: Padding(
@@ -339,7 +338,7 @@ class _DashboardState extends State<Dashboard> {
                               ),
                               SizedBox(height: 10),
                               Text(
-                                "50-30-20 Budget",
+                                "Target Budget",
                                 style: TextStyle(
                                   color:
                                       Theme.of(context).brightness ==
@@ -360,7 +359,7 @@ class _DashboardState extends State<Dashboard> {
                     SizedBox(height: 40.0),
                     Card(
                       elevation: 9,
-                      color: Theme.of(context).brightness == Brightness.dark
+                      color: isDarkTheme(context)
                           ? Colors.grey[850]
                           : Colors.grey[50],
                       child: Padding(
@@ -430,7 +429,7 @@ class _DashboardState extends State<Dashboard> {
                     SizedBox(height: 5.0),
                     Card(
                       elevation: 9,
-                      color: Theme.of(context).brightness == Brightness.dark
+                      color: isDarkTheme(context)
                           ? Colors.grey[850]
                           : Colors.grey[50],
                       child: Padding(

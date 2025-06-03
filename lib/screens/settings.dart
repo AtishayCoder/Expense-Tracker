@@ -1,6 +1,7 @@
 import 'package:expense_tracker/storage/expense_manager.dart';
 import 'package:expense_tracker/utils/event_bus_singleton.dart';
 import 'package:expense_tracker/utils/events.dart';
+import 'package:expense_tracker/utils/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 
@@ -34,12 +35,12 @@ class _SettingsState extends State<Settings> {
                       desc: "This action cannot be undone. Are you sure?",
                       style: AlertStyle(
                         titleStyle: TextStyle(
-                          color: Theme.of(context).brightness == Brightness.dark
+                          color: isDarkTheme(context)
                               ? Colors.white
                               : Colors.black,
                         ),
                         descStyle: TextStyle(
-                          color: Theme.of(context).brightness == Brightness.dark
+                          color: isDarkTheme(context)
                               ? Colors.white
                               : Colors.black,
                         ),

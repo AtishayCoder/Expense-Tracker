@@ -3,6 +3,7 @@ import 'package:expense_tracker/screens/dashboard.dart';
 import 'package:expense_tracker/screens/new_expense.dart';
 import 'package:expense_tracker/screens/settings.dart';
 import 'package:expense_tracker/screens/transactions.dart';
+import 'package:expense_tracker/utils/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -47,8 +48,7 @@ class _RootState extends State<Root> {
                     onPressed: () {
                       Get.bottomSheet(
                         const Settings(),
-                        backgroundColor:
-                            Theme.of(context).brightness == Brightness.dark
+                        backgroundColor: isDarkTheme(context)
                             ? Colors.black
                             : Colors.white,
                       );
@@ -90,8 +90,7 @@ class _RootState extends State<Root> {
                   Get.bottomSheet(
                     const NewExpense(),
                     isScrollControlled: true,
-                    backgroundColor:
-                        Theme.of(context).brightness == Brightness.dark
+                    backgroundColor: isDarkTheme(context)
                         ? Colors.black
                         : Colors.white,
                     ignoreSafeArea: false,

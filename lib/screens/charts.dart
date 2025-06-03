@@ -5,6 +5,7 @@ import 'package:expense_tracker/models/expense.dart';
 import 'package:expense_tracker/storage/expense_manager.dart';
 import 'package:expense_tracker/utils/event_bus_singleton.dart';
 import 'package:expense_tracker/utils/events.dart';
+import 'package:expense_tracker/utils/theme.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud_alt/modal_progress_hud_alt.dart';
@@ -349,10 +350,18 @@ class _ChartsState extends State<Charts> {
               SizedBox(height: 40),
               Builder(
                 builder: (context) {
-                  final double maxY =
-                      ((spendingRhythm.values.reduce(max) * 1.2) / 1000)
-                          .ceil() *
-                      1000;
+                  double maxY = 0.0;
+                  if (spendingRhythm.values.any((element) => element > 0)) {
+                    maxY =
+                        ((spendingRhythm.values.reduce(max) * 1.2) / 1000)
+                            .ceil() *
+                        1000;
+                  }
+
+                  if (maxY == 0.0) {
+                    maxY = 100.0;
+                  }
+
                   final double interval = maxY / 5;
 
                   return Transform.translate(
@@ -394,10 +403,18 @@ class _ChartsState extends State<Charts> {
                               sideTitles: SideTitles(
                                 reservedSize: 48,
                                 interval: interval,
-                                showTitles: !(spendingRhythm.values.every(
-                                  (n) => n == 0.0,
-                                )),
+                                showTitles: true,
                                 getTitlesWidget: (value, meta) {
+                                  if (spendingRhythm.values.every(
+                                    (n) => n == 0.0,
+                                  )) {
+                                    return SideTitleWidget(
+                                      meta: meta,
+                                      space: 6,
+                                      child: Text(''),
+                                    );
+                                  }
+
                                   String formatted;
                                   if (value >= 1_000_000) {
                                     formatted =
@@ -516,35 +533,60 @@ class _ChartsState extends State<Charts> {
   }
 
   Color _gridLineColor(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = isDarkTheme(context);
     return (isDark ? Colors.white : Colors.black).withAlpha(25);
   }
 
   Color _axisLineColor(BuildContext context) {
-    return Theme.of(context).brightness == Brightness.dark
-        ? Colors.white
-        : Colors.black;
+    return isDarkTheme(context) ? Colors.white : Colors.black;
   }
 
   List<double> getYAxisLabels() {
     final usedY = _dailyExpenseSpots.map((e) => e.y).toSet().toList()..sort();
 
-    if (usedY.isEmpty) return [];
+    if (usedY.isEmpty) {
+      return [];
+    }
 
-    Set<double> finalLabels = {...usedY};
+    if (usedY.length <= 2) {
+      Set<double> labels = {...usedY};
 
-    if (usedY.length < 6) {
+      if (usedY.length == 1) {
+        double val = usedY.first;
+        if (val > 0) {
+          labels.add((val * 0.5).roundToDouble().clamp(0, double.infinity));
+        } else {
+          labels.add(10.0);
+        }
+      } else if (usedY.length == 2) {
+        double a = usedY[0];
+        double b = usedY[1];
+        double mid = ((a + b) / 2).roundToDouble();
+        labels.add(mid);
+      }
+
+      return labels.toList()..sort();
+    }
+
+    if (usedY.length == 3) {
+      Set<double> finalLabels = {...usedY};
+
       for (int i = 0; i < usedY.length - 1; i++) {
         double a = usedY[i];
         double b = usedY[i + 1];
         double mid = ((a + b) / 2).roundToDouble();
-
         finalLabels.add(mid);
         if (finalLabels.length >= 6) break;
       }
+
+      return finalLabels.toList()..sort();
     }
 
-    return finalLabels.toList()..sort();
+    if (usedY.length >= 4) {
+      return usedY;
+    }
+
+    return usedY;
   }
 
   String _formatYAxisLabel(double value) {
