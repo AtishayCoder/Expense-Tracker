@@ -5,6 +5,7 @@ import 'package:expense_tracker/utils/events.dart';
 import 'package:expense_tracker/utils/theme.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:modal_progress_hud_alt/modal_progress_hud_alt.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -25,6 +26,9 @@ class _DashboardState extends State<Dashboard> {
   double? needTotal;
   double? wantTotal;
   final double radius = 80;
+  int? targetNeeds;
+  int? targetWants;
+  int? targetSavings;
 
   @override
   void initState() {
@@ -42,8 +46,10 @@ class _DashboardState extends State<Dashboard> {
     setState(() {
       processing = true;
     });
+
+    var instance = await SharedPreferences.getInstance();
     await expenseManagerInstance.loadExpenses();
-    income = (await SharedPreferences.getInstance()).getInt("Income")!;
+    income = (instance).getInt("Income")!;
     totalSpent = expenseManagerInstance.getTotal();
     totalExpenses = expenseManagerInstance.expenses.length;
     remainingBalance = (income ?? 0.0) - (totalSpent ?? 0.0);
@@ -61,6 +67,13 @@ class _DashboardState extends State<Dashboard> {
     for (var e in wants) {
       wantTotal = (wantTotal ?? 0.0) + e.amount;
     }
+
+    targetNeeds = (instance.getInt("TargetNeeds") ?? 50);
+    targetWants = (instance.getInt("TargetWants") ?? 30);
+    targetSavings = (instance.getInt("TargetSavings") ?? 20);
+
+    print("$targetNeeds; $targetWants; $targetSavings");
+
     setState(() {
       processing = false;
     });
@@ -283,56 +296,170 @@ class _DashboardState extends State<Dashboard> {
                         Expanded(
                           child: Column(
                             children: [
-                              AspectRatio(
-                                aspectRatio: 1,
-                                child: PieChart(
-                                  PieChartData(
-                                    centerSpaceRadius: 0,
-                                    sections: [
-                                      PieChartSectionData(
-                                        value: 50,
-                                        color: Colors.orange,
-                                        showTitle: true,
-                                        title: "Needs",
-                                        radius: radius,
-                                        titleStyle: TextStyle(
-                                          color:
-                                              Theme.of(context).brightness ==
-                                                  Brightness.dark
-                                              ? Colors.white
-                                              : Colors.black,
-                                        ),
+                              GestureDetector(
+                                onTap: () {
+                                  int? localTargetNeeds;
+                                  int? localTargetWants;
+                                  int? localTargetSavings;
+
+                                  Get.dialog(
+                                    AlertDialog(
+                                      title: Center(
+                                        child: Text("Set Target Percentages"),
                                       ),
-                                      PieChartSectionData(
-                                        value: 30,
-                                        color: Colors.blue,
-                                        showTitle: true,
-                                        title: "Wants",
-                                        radius: radius,
-                                        titleStyle: TextStyle(
-                                          color:
-                                              Theme.of(context).brightness ==
-                                                  Brightness.dark
-                                              ? Colors.white
-                                              : Colors.black,
-                                        ),
+                                      content: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          TextField(
+                                            decoration: InputDecoration(
+                                              labelText: "Needs (%)",
+                                              border: OutlineInputBorder(),
+                                            ),
+                                            keyboardType: TextInputType.number,
+                                            onChanged: (value) {
+                                              localTargetNeeds = int.tryParse(
+                                                value,
+                                              );
+                                            },
+                                          ),
+                                          SizedBox(height: 15),
+                                          TextField(
+                                            decoration: InputDecoration(
+                                              labelText: "Wants (%)",
+                                              border: OutlineInputBorder(),
+                                            ),
+                                            keyboardType: TextInputType.number,
+                                            onChanged: (value) {
+                                              localTargetWants = int.tryParse(
+                                                value,
+                                              );
+                                            },
+                                          ),
+                                          SizedBox(height: 15),
+                                          TextField(
+                                            decoration: InputDecoration(
+                                              labelText: "Savings (%)",
+                                              border: OutlineInputBorder(),
+                                            ),
+                                            keyboardType: TextInputType.number,
+                                            onChanged: (value) {
+                                              localTargetSavings = int.tryParse(
+                                                value,
+                                              );
+                                            },
+                                          ),
+                                        ],
                                       ),
-                                      PieChartSectionData(
-                                        value: 20,
-                                        color: Colors.green,
-                                        showTitle: true,
-                                        title: "Savings",
-                                        radius: radius,
-                                        titleStyle: TextStyle(
-                                          color:
-                                              Theme.of(context).brightness ==
-                                                  Brightness.dark
-                                              ? Colors.white
-                                              : Colors.black,
+                                      actions: [
+                                        MaterialButton(
+                                          color: Theme.of(context).primaryColor,
+                                          child: Text(
+                                            "Update",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                          onPressed: () async {
+                                            if (localTargetNeeds != null &&
+                                                localTargetWants != null &&
+                                                localTargetSavings != null) {
+                                              if (localTargetNeeds! +
+                                                      localTargetWants! +
+                                                      localTargetSavings! ==
+                                                  100) {
+                                                SharedPreferences instance =
+                                                    await SharedPreferences.getInstance();
+                                                await instance.setInt(
+                                                  "TargetNeeds",
+                                                  localTargetNeeds!,
+                                                );
+                                                await instance.setInt(
+                                                  "TargetWants",
+                                                  localTargetWants!,
+                                                );
+                                                await instance.setInt(
+                                                  "TargetSavings",
+                                                  localTargetSavings!,
+                                                );
+                                                appEventBus.fire(
+                                                  ExpensesUpdatedEvent(),
+                                                );
+                                                Get.back();
+                                              } else {
+                                                Get.snackbar(
+                                                  "Error",
+                                                  "Percentages must add up to 100",
+                                                );
+                                              }
+                                            } else {
+                                              Get.snackbar(
+                                                "Error",
+                                                "All fields are required",
+                                              );
+                                            }
+                                          },
                                         ),
-                                        titlePositionPercentageOffset: 0.65,
-                                      ),
-                                    ],
+                                        TextButton(
+                                          onPressed: () {
+                                            Get.back();
+                                          },
+                                          child: Text("Cancel"),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                                child: AspectRatio(
+                                  aspectRatio: 1,
+                                  child: PieChart(
+                                    PieChartData(
+                                      centerSpaceRadius: 0,
+                                      sections: [
+                                        PieChartSectionData(
+                                          value: targetNeeds?.toDouble(),
+                                          color: Colors.orange,
+                                          showTitle: true,
+                                          title: "Needs",
+                                          radius: radius,
+                                          titleStyle: TextStyle(
+                                            color:
+                                                Theme.of(context).brightness ==
+                                                    Brightness.dark
+                                                ? Colors.white
+                                                : Colors.black,
+                                          ),
+                                        ),
+                                        PieChartSectionData(
+                                          value: targetWants?.toDouble(),
+                                          color: Colors.blue,
+                                          showTitle: true,
+                                          title: "Wants",
+                                          radius: radius,
+                                          titleStyle: TextStyle(
+                                            color:
+                                                Theme.of(context).brightness ==
+                                                    Brightness.dark
+                                                ? Colors.white
+                                                : Colors.black,
+                                          ),
+                                        ),
+                                        PieChartSectionData(
+                                          value: targetSavings?.toDouble(),
+                                          color: Colors.green,
+                                          showTitle: true,
+                                          title: "Savings",
+                                          radius: radius,
+                                          titleStyle: TextStyle(
+                                            color:
+                                                Theme.of(context).brightness ==
+                                                    Brightness.dark
+                                                ? Colors.white
+                                                : Colors.black,
+                                          ),
+                                          titlePositionPercentageOffset: 0.65,
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
