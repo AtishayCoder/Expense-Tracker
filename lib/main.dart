@@ -3,8 +3,11 @@ import 'package:expense_tracker/screens/dashboard.dart';
 import 'package:expense_tracker/screens/new_expense.dart';
 import 'package:expense_tracker/screens/settings.dart';
 import 'package:expense_tracker/screens/transactions.dart';
+import 'package:expense_tracker/utils/event_bus_singleton.dart';
+import 'package:expense_tracker/utils/events.dart';
 import 'package:expense_tracker/utils/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -29,7 +32,54 @@ class _RootState extends State<Root> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await (await SharedPreferences.getInstance()).setInt("Income", 100000);
+      var instance = await SharedPreferences.getInstance();
+      bool launchDialog =
+          !(instance.containsKey("Income")) || instance.getInt("Income") == 0;
+      if (launchDialog) {
+        int income = 0;
+        Get.dialog(
+          barrierDismissible: false,
+          AlertDialog(
+            titlePadding: EdgeInsets.all(10.0),
+            contentPadding: EdgeInsets.all(10),
+            title: Center(child: const Text("Welcome")),
+            alignment: Alignment.center,
+            content: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("Please tell us your monthly income."),
+                SizedBox(height: 10.0),
+                TextField(
+                  decoration: InputDecoration(
+                    hintText: "Income (₹)",
+                    border: OutlineInputBorder(),
+                  ),
+                  autofocus: true,
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    income = int.parse(value);
+                  },
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                ),
+                SizedBox(height: 20.0),
+                MaterialButton(
+                  onPressed: () async {
+                    if (income.isEqual(0)) {
+                      return;
+                    }
+                    await instance.setInt("Income", income);
+                    Get.back();
+                    appEventBus.fire(ExpensesUpdatedEvent());
+                  },
+                  color: Colors.blue,
+                  minWidth: double.infinity,
+                  child: Text("Let's go"),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
     });
   }
 
