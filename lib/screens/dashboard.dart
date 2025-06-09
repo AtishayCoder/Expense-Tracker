@@ -49,7 +49,7 @@ class _DashboardState extends State<Dashboard> {
 
     var instance = await SharedPreferences.getInstance();
     await expenseManagerInstance.loadExpenses();
-    income = (instance).getInt("Income")!;
+    income = (instance).getInt("Income") ?? 0;
     totalSpent = expenseManagerInstance.getTotal();
     totalExpenses = expenseManagerInstance.expenses.length;
     remainingBalance = (income ?? 0.0) - (totalSpent ?? 0.0);
